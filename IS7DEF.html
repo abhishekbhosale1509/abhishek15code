@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diffie-Hellman Key Exchange</title>
+</head>
+
+<body>
+    <h1>Diffie-Hellman Key Exchange</h1>
+    <div>
+        <label for="p">Enter Prime No:</label>
+        <input type=" number " id="p">
+    </div>
+    <br>
+    <div>
+        <label for="g">Enter Primitive Root G:</label>
+        <input type="number" id="g">
+    </div>
+    <br>
+    <div>
+        <label for="x1">Enter Private Key of User 1:</label>
+        <input type="number" id="x1">
+    </div>
+    <br>
+    <div>
+        <label for="x2">Enter Private Key of User 2:</label>
+        <input type="number" id="x2">
+    </div>
+    <br>
+    <button onclick="calculateSecretKey()">Calculate Secret Key</button>
+    <div id="result"></div>
+    <script>
+        function primeChecker(p) {
+            if (p < 1) {
+                return false;
+            }
+            else if (p > 1) 
+                {
+                if (p === 2) 
+                {
+                    return true;
+                }
+                for (let i = 2; i < p; i++)
+                {
+                    if (p % i === 0)
+                    {
+                        return false;
+                    }
+                }
+                return true;
+
+            }
+            return false;
+
+        }
+
+        function primitiveCheck(g, p, L) {
+            for (let i = 1; i < p; i++) {
+                L.push(BigInt(Math.pow(g, i) % p));
+            }
+            for (let i = 1; i < p; i++) {
+                if (L.filter(x => x === BigInt(i)).length > 1) {
+                    L = [];
+                    return false;
+                }
+            }
+            return true;
+
+        }
+
+        function calculateSecretKey() {
+            let P = parseInt(document.getElementById("p").value);
+            let G = parseInt(document.getElementById("g").value);
+            let x1 = BigInt(document.getElementById("x1").value);
+            let x2 = BigInt(document.getElementById("x2").value);
+            if (!primeChecker(P)) {
+                alert("P must be a prime number");
+                return;
+            }
+            let l = [];
+            if (!primitiveCheck(G, P, l)) {
+                alert("G must be a primitive root of P");
+                return;
+            }
+            let y1 = (BigInt(G) ** x1) % BigInt(P);
+            let y2 = (BigInt(G) ** x2) % BigInt(P);
+            let k1 = (y2 ** x1) % BigInt(P);
+            let k2 = (y1 ** x2) % BigInt(P);
+            let resultDiv = document.getElementById("result");
+            resultDiv.innerHTML = `
+        <p>Public key of User y1: ${y1}</p>
+        <p>Public key of User y2: ${y2}</p>
+        <p>Secret Key for User 1: ${k1}</p>
+        <p>Secret Key for User 2: ${k2}</p>
+        `;
+            if (k1 === k2) {
+                resultDiv.innerHTML += "<p>Keys have been exchanged successfully</p>";
+            } 
+            else {
+                resultDiv.innerHTML += "<p>Keys have not been exchanged  successfully</p>";
+            }
+        }
+    </script>
+</body>
+
+</html>
